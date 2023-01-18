@@ -1,40 +1,18 @@
 const express = require('express')
 const router = express.Router();
+const checkAuth = require('../middleware/checkAuth')
+const orderController = require('../controller/orderController')
 
-router.get('/', (req, res, next)=>{
-    res.status(200).json({
-        message : 'This is a GET request for the Orders'
-    })
-})
 
-router.post('/', (req,res, next)=>{
-    res.status(200).json({
-        message : 'This is a POST request for the Orders'
-    })
-})
+router.get('/', checkAuth , orderController.getAllOrder)
 
-router.get('/:orderID',(req, res, next)=>{
-    const id = req.params.id;
-    res.status(200).json({
-        message : 'GET request for perticuler Order ',
-        id : id
-    })
-})
+router.post('/', checkAuth , orderController.addOrder)
 
-router.patch('/:orderID', (req,res,next)=>{
-    const id = req.params.id;
-    res.status(200).json({
-        message : 'Update the Order',
-        id: id
-    })
-})
+router.get('/:orderID', checkAuth , orderController.getOneOrder)
 
-router.delete('/:orderID', (req,res, next)=>{
-    const id = req.params.id;
-    res.status(200).json({
-        message : 'Delete the Order'
-    })
-})
+router.patch('/:orderID', checkAuth , orderController.updateOrder)
+
+router.delete('/:orderID', checkAuth , orderController.deleteOrder)
 
 
 module.exports = router;

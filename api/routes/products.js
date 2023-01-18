@@ -1,45 +1,45 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
+const checkAuth = require('../middleware/checkAuth')
+const productController = require('../controller/productController')
+const Product = require('../Models/productSchema');
 
-router.get('/', (req, res, next )=>{
-    res.status(200).json({
-        message : 'This is Handling the products GET request..'
-    })
-})
-
-router.post('/', (req, res, next )=>{
-    res.status(200).json({
-        message : 'This is Handling the products POST request..'
-    })
-})
-
-router.get('/:productID', (req, res, next )=>{
-    const id = req.params.id
-    if( id === 'special'){
-        res.status(200).json({
-            message : 'You Discovered Special id',
-            id : id
-        })
-    }else{
-        res.status(200).json({
-            message: 'you passed a Product ID'
-        })
+const storage = multer.diskStorage({
+    destination: function(req, file, cb){
+        cb(null, './upload/')
+    },
+    filename: function(req,file,cb){
+        cb(null, new Date().toISOString()+file.originalname)
     }
 })
 
-router.patch('/:productID', (req, res, next)=>{
-    const id = req.params.id;
-    res.status(200).json({
-        message : 'Update the Product'
-    })
+const fileFilter = function(req,file,cb){
+    if(file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/jpg'){
+        cb(null,true);
+    }else{
+        cb(null, false)
+    }
+}
+
+const upload = multer({
+    storage : storage,
+    limits : {
+        fileSize: 1024 * 1024 * 5
+    },
+    fileFilter : fileFilter
 })
 
-router.delete('/:productID', ( req, res, next)=>{
-    const id = req.params.id;
-    res.status(200).json({
-        message: 'Delete the Products'
-    })
-})
+
+router.get('/', productController.getAllProduct)
+
+router.post('/', checkAuth , upload.single('productImage'), productController.addProduct)
+
+router.get('/:productID',checkAuth , productController.getOneProduct)
+
+router.patch('/:productID',checkAuth , productController.updateProduct)
+
+router.delete('/:productID',checkAuth , productController.deleteProduct)
 
 
 
